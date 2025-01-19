@@ -1,0 +1,17 @@
+{
+  "index": {
+    "indexName": "EXISTING_INDEX",
+    "indexShares": [
+      {
+        "shareName": "SHARE_ONE",
+        "sharePrice": 10,
+        "numberOfShares": 10
+      },
+      {
+        "shareName": "SHARE_TWO",
+        "sharePrice": 10,
+        "numberOfShares": 10
+      }
+    ]
+  }
+}

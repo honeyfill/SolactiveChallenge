@@ -1,0 +1,8 @@
+{
+  "additionOperation": {
+    "shareName": "SHARE_ONE",
+    "sharePrice": 10,
+    "numberOfShares": 10,
+    "indexName": "INDEX_FOR_ADD_TEST"
+  }
+}

@@ -6,24 +6,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class DataStorage {
-    private final HashMap<String, Index> indexStorage;
-    private final HashMap<String, List<Index>> shareName2Indices;
+    private final ConcurrentHashMap<String, Index> indexStorage;
+    private final ConcurrentHashMap<String, List<Index>> shareName2Indices;
 
     public DataStorage() {
-        this.indexStorage = new HashMap<>();
-        this.shareName2Indices = new HashMap<>();
+        this.indexStorage = new ConcurrentHashMap<>();
+        this.shareName2Indices = new ConcurrentHashMap<>();
     }
 
-    public boolean checkIndexNotExist(String indexName) {
+    public boolean checkIndexAbsent(String indexName) {
         return !indexStorage.containsKey(indexName);
     }
 
-    synchronized public void registerIndex(Index index) {
+    public void registerIndex(Index index) {
         if (indexStorage.containsKey(index.getIndexName())) {
             String msg = String.format("Index = %s already exists, cannot execute the request", index.getIndexName());
             throw new IndexRuntimeException(HttpStatus.CONFLICT, msg);

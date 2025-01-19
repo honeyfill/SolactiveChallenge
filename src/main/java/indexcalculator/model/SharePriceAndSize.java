@@ -3,6 +3,7 @@ package indexcalculator.model;
 import java.math.BigDecimal;
 
 public class SharePriceAndSize {
+
     private BigDecimal sharePrice;
     private BigDecimal shareSize;
 

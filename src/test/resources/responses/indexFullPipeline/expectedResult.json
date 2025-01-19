@@ -1,0 +1,38 @@
+{
+  "indexDetails": [
+    {
+      "indexName": "INDEX_1",
+      "indexValue": 4000.000,
+      "indexMembers": [
+        {
+          "shareName": "A.OQ",
+          "sharePrice": 8,
+          "numberOfShares": 36.8574199806014,
+          "indexWeightPct": 7.37148399612027,
+          "indexValue": 294.859359844811
+        },
+        {
+          "shareName": "B.OQ",
+          "sharePrice": 20.0,
+          "numberOfShares": 55.286129970902,
+          "indexWeightPct": 27.643064985451,
+          "indexValue": 1105.72259941804
+        },
+        {
+          "shareName": "C.OQ",
+          "sharePrice": 30,
+          "numberOfShares": 73.7148399612027,
+          "indexWeightPct": 55.286129970902,
+          "indexValue": 2211.44519883608
+        },
+        {
+          "shareName": "E.OQ",
+          "sharePrice": 10,
+          "numberOfShares": 38.7972841901067,
+          "indexWeightPct": 9.69932104752667,
+          "indexValue": 387.972841901067
+        }
+      ]
+    }
+  ]
+}

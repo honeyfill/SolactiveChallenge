@@ -2,14 +2,14 @@ package indexcalculator.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import indexcalculator.exception.IndexRuntimeException;
 import indexcalculator.dao.DataStorage;
 import indexcalculator.dto.input.AdditionAdjustment;
 import indexcalculator.dto.input.DeletionAdjustment;
 import indexcalculator.dto.input.DividendAdjustment;
 import indexcalculator.dto.input.IndexCreationDto;
-import indexcalculator.dto.output.IndexDetailsDto;
 import indexcalculator.dto.input.ShareCreationDto;
+import indexcalculator.dto.output.IndexDetailsDto;
+import indexcalculator.exception.IndexRuntimeException;
 import indexcalculator.model.Index;
 import indexcalculator.model.SharePriceAndSize;
 import org.apache.logging.log4j.LogManager;
@@ -19,8 +19,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class IndexService {
@@ -40,7 +41,7 @@ public class IndexService {
 
         String indexName = indexCreationDto.indexName();
         BigDecimal indexValue = BigDecimal.ZERO;
-        HashMap<String, SharePriceAndSize> indexComponents = new HashMap<>();
+        ConcurrentHashMap<String, SharePriceAndSize> indexComponents = new ConcurrentHashMap<>();
 
         if (indexCreationDto.indexShares().size() < MINIMAL_SHARES_IN_INDEX) {
             String msg = String.format("Index `%s` contains less than two members, cannot create such an index", indexName);
@@ -60,7 +61,7 @@ public class IndexService {
 
     public void adjustIndexByAddition(AdditionAdjustment additionAdjustment) {
         String indexName = additionAdjustment.indexName();
-        if (dataStorage.checkIndexNotExist(indexName)) {
+        if (dataStorage.checkIndexAbsent(indexName)) {
             String msg = String.format("Index `%s` does not exist, cannot add share to the index", indexName);
             throw new IndexRuntimeException(HttpStatus.NOT_FOUND, msg);
         }
@@ -82,7 +83,7 @@ public class IndexService {
         String indexName = deletionAdjustment.indexName();
         String shareName = deletionAdjustment.shareName();
 
-        if (dataStorage.checkIndexNotExist(indexName)) {
+        if (dataStorage.checkIndexAbsent(indexName)) {
             String msg = String.format("Index `%s` does not exist, cannot delete `%s` from the index", indexName, shareName);
             throw new IndexRuntimeException(HttpStatus.NOT_FOUND, msg);
         }
@@ -128,14 +129,27 @@ public class IndexService {
         }
     }
 
-    public String getIndexState() {
-        try {
-            IndexDetailsDto result = new IndexDetailsDto(
+    public String getIndexState(String indexName) {
+        IndexDetailsDto result = null;
+        if (indexName != null) {
+            if (dataStorage.checkIndexAbsent(indexName)) {
+                String msg = String.format("Cannot found Index with specified name = %s", indexName);
+                throw new IndexRuntimeException(HttpStatus.NOT_FOUND, msg);
+            }
+            result = new IndexDetailsDto(
+                    Collections.singletonList(
+                        dataStorage.getIndexByName(indexName).makeIndexStateDto()
+                    )
+            );
+        } else {
+            result = new IndexDetailsDto(
                     dataStorage.getAllIndexStates()
                             .stream()
                             .map(Index::makeIndexStateDto)
                             .toList()
             );
+        }
+        try {
             return objectMapper.writeValueAsString(result);
         } catch (JsonProcessingException e) {
             throw new IndexRuntimeException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error, call an IT support");

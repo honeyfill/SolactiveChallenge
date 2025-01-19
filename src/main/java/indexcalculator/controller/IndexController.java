@@ -1,7 +1,7 @@
 package indexcalculator.controller;
 
 import indexcalculator.dto.input.IndexAdjustmentDto;
-import indexcalculator.dto.input.IndexCreationDto;
+import indexcalculator.dto.input.IndexDto;
 import indexcalculator.exception.IndexRuntimeException;
 import indexcalculator.service.IndexService;
 import jakarta.validation.Valid;
@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -30,13 +31,13 @@ public class IndexController {
     }
 
     @PostMapping(path = "/create", consumes = "application/json")
-    public ResponseEntity<Void> createIndex(@Valid @RequestBody IndexCreationDto indexCreationDto) {
-        indexService.createIndex(indexCreationDto);
+    public ResponseEntity<Void> createIndex(@Valid @RequestBody IndexDto indexDto) {
+        indexService.createIndex(indexDto.index());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping(path = "/indexAdjustment", consumes = "application/json")
-    public ResponseEntity<Void> adjustIndex(@RequestBody IndexAdjustmentDto indexAdjustmentDto) {
+    public ResponseEntity<Void> adjustIndex(@Valid @RequestBody IndexAdjustmentDto indexAdjustmentDto) {
         if (indexAdjustmentDto.addition() != null) {
             indexService.adjustIndexByAddition(indexAdjustmentDto.addition());
             return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -48,7 +49,12 @@ public class IndexController {
 
     @GetMapping(path = "/indexState", produces = "application/json")
     public ResponseEntity<String> getIndexState() {
-        return ResponseEntity.ok(indexService.getIndexState());
+        return ResponseEntity.ok(indexService.getIndexState(null));
+    }
+
+    @GetMapping(path = "/indexState/{index_name}", produces = "application/json")
+    public ResponseEntity<String> getIndexState(@PathVariable(value = "index_name") String indexName) {
+        return ResponseEntity.ok(indexService.getIndexState(indexName));
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
